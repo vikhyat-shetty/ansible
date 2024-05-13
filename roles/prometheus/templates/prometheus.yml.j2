@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 10s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+    - targets: 
+      - "{{ inventory_hostname }}:9090"
+
+{% for job in jobs %}
+  - job_name: "{{ job.name }}"
+    static_configs:
+    - targets:
+      {% for target in job.targets %}
+      - "{{ target }}"
+      {% endfor %}      
+      labels:
+        env: "{{ job.labels.env }}"
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: hostname
+        regex: '([^:]+)(:[0-9]+)?'
+        replacement: '${1}'
+        
+{% endfor %}

@@ -1,0 +1,25 @@
+[Unit]
+Description=Grafana Server
+Documentation=http://docs.grafana.org
+After=network.target
+After=postgresql.service mariadb.service mysqld.service influxdb.service
+
+[Service]
+Type=simple
+User=grafana
+Group=grafana
+WorkingDirectory=/opt/grafana
+RuntimeDirectory=grafana
+RuntimeDirectoryMode=0750
+ExecStart=/opt/grafana/bin/grafana-server \
+  --config=/opt/grafana/conf/defaults.ini \
+  --homepath=/opt/grafana \
+  --packaging=deb \
+  cfg:default.paths.logs=/var/log/grafana \
+  cfg:default.paths.data=/var/lib/grafana \
+  cfg:default.paths.plugins=/var/lib/grafana/plugins \
+  cfg:default.paths.provisioning=/etc/grafana/provisioning
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

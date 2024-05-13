@@ -1,0 +1,115 @@
+---
+- name: Check OS distribution
+  ansible.builtin.setup:
+    filter: ansible_distribution
+
+- name: Update apt package and Install necessary packages for Debian/Ubuntu
+  include_tasks: debian_ubuntu.yml
+  when: ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Update yum package and Install necessary packages for CentOS/RHEL
+  include_tasks: centos_redhat.yml
+  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+
+- name: Download Grafana
+  when: airgapped_installation_mode == "false"
+  get_url:
+    url: "https://dl.grafana.com/oss/release/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/grafana.tar.gz"
+
+- name: Copy Grafana package to desination (Air gapped mode)
+  when: airgapped_installation_mode == "true"
+  ansible.builtin.copy:
+    src: "{{ grafana_package }}"
+    dest: /tmp/
+  
+- name: Rename Grafana tar file to grafana.tar.gz
+  when: airgapped_installation_mode == "true"
+  command: mv /tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz /tmp/grafana.tar.gz
+
+- name: Install Grafana
+  become: yes
+  become_user: root
+  shell: |
+    cd /tmp/
+    tar xvfz grafana.tar.gz
+    grafana_dir=$(find . -maxdepth 1 -type d -name "grafana-*" -exec basename {} \;)
+    cp -r "$grafana_dir" /opt/grafana/
+
+- name: Setup Prometheus Service File
+  template:
+    src: grafana.service.j2
+    dest: /etc/systemd/system/grafana.service
+
+- name: Create the grafana user
+  user:
+    name: grafana
+    state: present
+
+- name: Create the grafana group
+  group:
+    name: grafana
+    state: present
+
+# Checks if the required Grafana directories exists. Creates if it doesnt and set ownership and permissions
+
+- block:
+  - name: "Checking grafana folders"
+    stat:
+      path: "{{item}}"
+    register: folder_stats
+    with_items:
+      - /opt/grafana/conf/provisioning
+      - /opt/grafana/data/log
+      - /var/log/grafana
+  - name: "Creating multiple folders without disturbing previous permissions"
+    file:
+      path: "{{item.item}}"
+      state: directory
+      mode: 0755
+      group: grafana
+      owner: grafana
+      recurse: yes
+    become: yes
+    when: item.stat.exists == false
+    with_items:
+    - "{{folder_stats.results}}"
+
+- name: Add Custom grafana dashboard
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /opt/grafana/conf/provisioning/dashboards/
+  loop: "{{ grafana_custom_dashboards }}"
+  when: grafana_custom_dashboards is defined
+
+# For testing purpose
+- name: Copy Grafana Dashboard
+  copy:
+    src: grafana/provisioning
+    dest: /opt/grafana/conf/
+
+- name: Configure Grafana dashboard location
+  template: 
+    src: dashboard.yml.j2
+    dest: /opt/grafana/conf/provisioning/dashboards/dashboard.yml
+
+- name: Configure Grafana datasource
+  template:
+    src: datasource.yml.j2
+    dest: /opt/grafana/conf/provisioning/datasources/datasource.yml
+
+- name: Delete Grafana tmp folder
+  file:
+    path: /tmp/$grafana_dir
+    state: absent
+
+- name: Reload systemd daemon
+  become: yes
+  become_user: root
+  shell: systemctl daemon-reload
+
+- name: Start and enable Grafana service
+  systemd:
+    name: grafana
+    state: restarted
+    enabled: yes

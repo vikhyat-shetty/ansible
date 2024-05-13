@@ -1,0 +1,55 @@
+- name: Download Node Exporter tar file
+  when: airgapped_installation_mode == "false"
+  get_url:
+    url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    dest: /tmp/node_exporter.tar.gz
+
+- name: Copy Node Exporter package to desination (Air gapped mode)
+  when: airgapped_installation_mode == "true"
+  ansible.builtin.copy:
+    src: "{{ node_exporter_package }}"
+    dest: /tmp/
+  
+- name: Rename tar file to node_exporter.tar.gz
+  when: airgapped_installation_mode == "true"
+  command: mv /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz /tmp/node_exporter.tar.gz
+
+- name: Extract Node Exporter tar file
+  unarchive:
+    src: /tmp/node_exporter.tar.gz
+    dest: /opt/
+    remote_src: yes
+
+- name: Move Node Exporter binaries
+  command: mv /opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter /usr/local/bin/
+
+- name: Create the node_exporter user
+  user:
+    name: node_exporter
+    state: present
+
+- name: Create the node_exporter group
+  group:
+    name: node_exporter
+    state: present
+
+- name: Create Node Exporter service file
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+
+- name: Delete node exporter tmp folder
+  file:
+    path: /tmp/node_exporter-{{ node_exporter_version }}
+    state: absent
+
+- name: Reload systemd daemon
+  become: yes
+  become_user: root
+  shell: systemctl daemon-reload
+
+- name: Start Node Exporter Service
+  service:
+    name: node_exporter
+    state: started
+    enabled: yes

@@ -1,0 +1,14 @@
+---
+- name: Install Node Exporter
+  hosts: node_exporter_vm
+  gather_facts: yes
+  become: yes
+  roles:
+    - node_exporter
+  
+- name: Install Prometheus and Grafana
+  hosts: promethues_grafana_vm
+  gather_facts: yes
+  become: yes
+  roles:
+    - prometheus_grafana

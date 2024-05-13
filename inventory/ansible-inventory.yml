@@ -1,0 +1,52 @@
+---
+all:
+  vars:
+    ansible_connection: ssh
+    ansible_user: root
+    ansible_become: true
+    ansible_ssh_private_key_file: /root/.ssh/id_rsa
+
+    airgap_mode: disabled
+
+
+promethues_grafana_vm:
+  vars:
+    prometheus_package: /home/administrator/projects/jmx-playbook/roles/node_exporter/files/air_gapped_files/prometheus-2.45.4.linux-amd64.tar.gz
+    grafana_package: /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/air_gapped_files/grafana-10.4.2.linux-amd64.tar.gz
+
+    grafana_user: grafana
+    grafana_password: password
+
+    prometheus_version: 2.45.4
+    grafana_version: 10.4.2
+    
+    custom_dashboards:
+      - /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/custom_dashboards/example1.json
+      - /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/custom_dashboards/example2.json
+
+    jobs:
+      - name: kafka_broker
+        targets:
+          - 1.2.3.4:8080
+          - 1.2.3.5:8080
+          - 1.2.3.6:8080 
+        labels:
+          env: dev
+           
+      - name: zookeeper
+        targets: 
+          - 1.2.4.1:8079
+          - 1.2.4.2:8079
+          - 1.2.4.3:8079
+        labels:
+          env: dev
+
+  hosts:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d21c.mylabserver.com:
+
+node_exporter_vm:
+  vars:
+    node_exporter_version: 1.8.0
+    node_exporter_package:
+  hosts:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d21c.mylabserver.com:
