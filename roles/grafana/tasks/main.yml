@@ -20,7 +20,7 @@
 - name: Copy Grafana package to desination (Air gapped mode)
   when: airgapped_installation_mode == "true"
   ansible.builtin.copy:
-    src: "{{ grafana_package }}"
+    src: "{{ grafana_archive_file_source }}"
     dest: /tmp/
   
 - name: Rename Grafana tar file to grafana.tar.gz
@@ -34,7 +34,7 @@
     cd /tmp/
     tar xvfz grafana.tar.gz
     grafana_dir=$(find . -maxdepth 1 -type d -name "grafana-*" -exec basename {} \;)
-    cp -r "$grafana_dir" /opt/grafana/
+    cp -r "$grafana_dir" {{ grafana_install_dir }}
 
 - name: Setup Prometheus Service File
   template:
@@ -43,12 +43,12 @@
 
 - name: Create the grafana user
   user:
-    name: grafana
+    name: "{{ grafana_user }}"
     state: present
 
 - name: Create the grafana group
   group:
-    name: grafana
+    name: "{{ grafana_group }}"
     state: present
 
 # Checks if the required Grafana directories exists. Creates if it doesnt and set ownership and permissions
@@ -59,16 +59,16 @@
       path: "{{item}}"
     register: folder_stats
     with_items:
-      - /opt/grafana/conf/provisioning
-      - /opt/grafana/data/log
+      - {{ grafana_install_dir }}/conf/provisioning
+      - {{ grafana_install_dir }}/data/log
       - /var/log/grafana
   - name: "Creating multiple folders without disturbing previous permissions"
     file:
       path: "{{item.item}}"
       state: directory
       mode: 0755
-      group: grafana
-      owner: grafana
+      group: "{{ grafana_group }}"
+      owner: "{{ grafana_user }}"
       recurse: yes
     become: yes
     when: item.stat.exists == false
@@ -78,7 +78,7 @@
 - name: Add Custom grafana dashboard
   ansible.builtin.copy:
     src: "{{ item }}"
-    dest: /opt/grafana/conf/provisioning/dashboards/
+    dest: "{{ grafana_install_dir }}/conf/provisioning/dashboards/"
   loop: "{{ grafana_custom_dashboards }}"
   when: grafana_custom_dashboards is defined
 
@@ -86,17 +86,17 @@
 - name: Copy Grafana Dashboard
   copy:
     src: grafana/provisioning
-    dest: /opt/grafana/conf/
+    dest: "{{ grafana_install_dir }}/conf/"
 
 - name: Configure Grafana dashboard location
   template: 
     src: dashboard.yml.j2
-    dest: /opt/grafana/conf/provisioning/dashboards/dashboard.yml
+    dest: "{{ grafana_install_dir }}/conf/provisioning/dashboards/dashboard.yml"
 
 - name: Configure Grafana datasource
   template:
     src: datasource.yml.j2
-    dest: /opt/grafana/conf/provisioning/datasources/datasource.yml
+    dest: "{{ grafana_install_dir }}/conf/provisioning/datasources/datasource.yml"
 
 - name: Delete Grafana tmp folder
   file:

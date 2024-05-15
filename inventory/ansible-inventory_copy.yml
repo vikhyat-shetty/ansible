@@ -43,12 +43,15 @@ grafana:
   vars:
     grafana_archive_file_source: /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/air_gapped_files/grafana-10.4.2.linux-amd64.tar.gz
     grafana_version: 10.4.2
+    grafana_user: grafana
+    grafana_group: grafana
     grafana_admin_username: grafana
     grafana_admin_password: password
 
     grafana_ssl_enabled: false
 
-    grafana_log_path:
+    grafana_install_dir: /opt/grafana
+    grafana_log_dir: /var/log/grafana
 
     grafana_custom_configs:
 
@@ -61,6 +64,12 @@ node_exporter:
     node_exporter_version: 1.8.0
     node_exporter_package:
   
+    node_exporter_install_dir: "/usr/local/bin"
+    node_exporter_listen_address: ":9100"
+    node_exporter_user: "node_exporter"
+    node_exporter_group: "node_exporter"
+    node_exporter_telemetry_path: "/metrics"
+    node_exporter_log_level: "info"
   
   hosts:
     c7d96d4d6c654c2eb9e2b9c7cc2da8d21c.mylabserver.com:

@@ -6,20 +6,23 @@ After=postgresql.service mariadb.service mysqld.service influxdb.service
 
 [Service]
 Type=simple
-User=grafana
-Group=grafana
-WorkingDirectory=/opt/grafana
+User={{ grafana_user }}
+Group={{ grafana_group }}
+WorkingDirectory={{ grafana_install_dir }}
 RuntimeDirectory=grafana
 RuntimeDirectoryMode=0750
-ExecStart=/opt/grafana/bin/grafana-server \
-  --config=/opt/grafana/conf/defaults.ini \
-  --homepath=/opt/grafana \
+ExecStart={{ grafana_install_dir }}/bin/grafana-server \
+  --config={{ grafana_install_dir }}/conf/defaults.ini \
+  --homepath={{ grafana_install_dir }} \
   --packaging=deb \
   cfg:default.paths.logs={{ grafana_log_path | default(/var/log/grafana)}} \
   cfg:default.paths.data=/var/lib/grafana \
   cfg:default.paths.plugins=/var/lib/grafana/plugins \
   cfg:default.paths.provisioning=/etc/grafana/provisioning
 Restart=on-failure
+
+Environment="GF_SECURITY_ADMIN_USER={{ grafana_admin_username }}"
+Environment="GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}"
 
 [Install]
 WantedBy=multi-user.target

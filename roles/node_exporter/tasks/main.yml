@@ -21,16 +21,16 @@
     remote_src: yes
 
 - name: Move Node Exporter binaries
-  command: mv /opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter /usr/local/bin/
+  command: mv /opt/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter {{ node_exporter_install_dir }}
 
 - name: Create the node_exporter user
   user:
-    name: node_exporter
+    name: "{{ node_exporter_user }}"
     state: present
 
 - name: Create the node_exporter group
   group:
-    name: node_exporter
+    name: "{{ node_exporter_group }}"
     state: present
 
 - name: Create Node Exporter service file

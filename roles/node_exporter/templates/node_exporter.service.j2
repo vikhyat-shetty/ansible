@@ -4,10 +4,13 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-User=node_exporter
-Group=node_exporter
+User={{ node_exporter_user }}
+Group={{ node_exporter_group }}
 Type=simple
-ExecStart=/usr/local/bin/node_exporter
+ExecStart={{ node_exporter_install_dir }}/node_exporter \
+--web.listen-address={{ node_exporter_listen_address }} \
+--web.telemetry-path={{ node_exporter_telemetry_path }} \
+--log.level={{ node_exporter_log_level }} \
 
 [Install]
 WantedBy=multi-user.target
