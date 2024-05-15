@@ -48,6 +48,8 @@ grafana:
 
     grafana_ssl_enabled: false
 
+    grafana_log_path:
+
     grafana_custom_configs:
 
     grafana_custom_dashboards:
