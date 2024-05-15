@@ -58,5 +58,7 @@ node_exporter:
   vars:
     node_exporter_version: 1.8.0
     node_exporter_package:
+  
+  
   hosts:
     c7d96d4d6c654c2eb9e2b9c7cc2da8d21c.mylabserver.com:
