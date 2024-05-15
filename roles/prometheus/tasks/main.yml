@@ -5,11 +5,11 @@
 
 - name: Update apt package and Install necessary packages for Debian/Ubuntu
   include_tasks: debian_ubuntu.yml
-  when: ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu'
+  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == "false" 
 
 - name: Update yum package and Install necessary packages for CentOS/RHEL
   include_tasks: centos_redhat.yml
-  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+  when: (ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat') and airgapped_installation_mode == "false"
 
 - name: Download Prometheus
   when: airgapped_installation_mode == "false"

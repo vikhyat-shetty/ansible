@@ -7,7 +7,7 @@ scrape_configs:
     - targets: 
       - "{{ inventory_hostname }}:9090"
 
-{% for job in jobs %}
+{% for job in prometheus_jobs %}
   - job_name: "{{ job.name }}"
     static_configs:
     - targets:

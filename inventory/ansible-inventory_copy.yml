@@ -46,6 +46,8 @@ grafana:
     grafana_admin_username: grafana
     grafana_admin_password: password
 
+    grafana_ssl_enabled: false
+
     grafana_custom_configs:
 
     grafana_custom_dashboards:

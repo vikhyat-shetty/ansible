@@ -4,12 +4,12 @@
     filter: ansible_distribution
 
 - name: Update apt package and Install necessary packages for Debian/Ubuntu
-  include_tasks: debian_ubuntu.yml
-  when: ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu'
+  include_tasks: "../../prometheus/tasks/debian_ubuntu.yml"
+  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == "false" 
 
 - name: Update yum package and Install necessary packages for CentOS/RHEL
-  include_tasks: centos_redhat.yml
-  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+  include_tasks: "../../prometheus/tasks/centos_redhat.yml"
+  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == "false" 
 
 - name: Download Grafana
   when: airgapped_installation_mode == "false"
@@ -102,6 +102,10 @@
   file:
     path: /tmp/$grafana_dir
     state: absent
+
+- name: Configure SSL
+  include_tasks: ssl.yml
+  when: grafana_ssl_enabled == "true"
 
 - name: Reload systemd daemon
   become: yes

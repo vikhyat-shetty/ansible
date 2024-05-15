@@ -1,0 +1,28 @@
+---
+- name: Install OpenSSL (for SSL certificate)
+  when: airgapped_installation_mode == "false"
+  package:
+    name: openssl
+    state: present
+
+- name: Create SSL certificate and key
+  command: >
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048
+    -keyout /etc/grafana/grafana.key
+    -out /etc/grafana/grafana.crt
+    -subj "/CN=grafana"
+
+- name: Configure Grafana for SSL
+  lineinfile:
+    path: /opt/grafana/conf/defaults.ini
+    regexp: '^;protocol = http$'
+    line: 'protocol = https'
+  notify: restart grafana
+
+- name: Configure Grafana SSL cert and key paths
+  blockinfile:
+    path: /opt/grafana/conf/defaults.ini
+    block: |
+      cert_file = /etc/grafana/grafana.crt
+      cert_key = /etc/grafana/grafana.key
+    marker: "; {mark}"
