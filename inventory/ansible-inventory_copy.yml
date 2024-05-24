@@ -8,8 +8,6 @@ all:
 
     airgapped_installation_mode: false
 
-# add ssl/tls security 
-
 promethues:
   vars:
     prometheus_archive_file_source: /home/administrator/projects/jmx-playbook/roles/node_exporter/files/air_gapped_files/prometheus-2.45.4.linux-amd64.tar.gz
@@ -37,7 +35,7 @@ promethues:
           env: dev
 
   hosts:
-    c7d96d4d6c654c2eb9e2b9c7cc2da8d21c.mylabserver.com:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d22c.mylabserver.com:
 
 grafana:
   vars:
@@ -48,7 +46,7 @@ grafana:
     grafana_admin_username: grafana
     grafana_admin_password: password
 
-    grafana_ssl_enabled: false
+    grafana_ssl_enabled: true
 
     grafana_install_dir: /opt/grafana
     grafana_log_dir: /var/log/grafana
@@ -56,8 +54,11 @@ grafana:
     grafana_custom_configs:
 
     grafana_custom_dashboards:
-      - /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/custom_dashboards/example1.json
-      - /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/custom_dashboards/example2.json
+      - /home/administrator/projects/jmx-playbook/roles/grafana/files/custom_dashboards/example1.json
+      - /home/administrator/projects/jmx-playbook/roles/grafana/files/custom_dashboards/example2.json
+
+  hosts:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d22c.mylabserver.com:
 
 node_exporter:
   vars:
@@ -72,4 +73,4 @@ node_exporter:
     node_exporter_log_level: "info"
   
   hosts:
-    c7d96d4d6c654c2eb9e2b9c7cc2da8d21c.mylabserver.com:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d22c.mylabserver.com:

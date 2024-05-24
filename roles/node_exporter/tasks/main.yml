@@ -1,17 +1,18 @@
+---
 - name: Download Node Exporter tar file
-  when: airgapped_installation_mode == "false"
+  when: airgapped_installation_mode == false
   get_url:
     url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
     dest: /tmp/node_exporter.tar.gz
 
 - name: Copy Node Exporter package to desination (Air gapped mode)
-  when: airgapped_installation_mode == "true"
+  when: airgapped_installation_mode == true
   ansible.builtin.copy:
     src: "{{ node_exporter_package }}"
     dest: /tmp/
   
 - name: Rename tar file to node_exporter.tar.gz
-  when: airgapped_installation_mode == "true"
+  when: airgapped_installation_mode == true
   command: mv /tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz /tmp/node_exporter.tar.gz
 
 - name: Extract Node Exporter tar file

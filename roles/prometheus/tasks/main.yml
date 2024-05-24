@@ -5,26 +5,26 @@
 
 - name: Update apt package and Install necessary packages for Debian/Ubuntu
   include_tasks: debian_ubuntu.yml
-  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == "false" 
+  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == false
 
 - name: Update yum package and Install necessary packages for CentOS/RHEL
   include_tasks: centos_redhat.yml
-  when: (ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat') and airgapped_installation_mode == "false"
+  when: (ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat') and airgapped_installation_mode == false
 
 - name: Download Prometheus
-  when: airgapped_installation_mode == "false"
+  when: airgapped_installation_mode == false
   get_url:
     url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
     dest: "/tmp/prometheus.tar.gz"
 
 - name: Copy Prometheus package to desination (Air gapped mode)
-  when: airgapped_installation_mode == "true"
+  when: airgapped_installation_mode == true
   ansible.builtin.copy:
     src: "{{ prometheus_package }}"
     dest: /tmp/
   
 - name: Rename Grafana tar file to prometheus.tar.gz
-  when: airgapped_installation_mode == "true"  
+  when: airgapped_installation_mode == true
   command: mv prometheus-{{ prometheus_version }}.linux-amd64.tar.gz /tmp/prometheus.tar.gz
 
 - name: Install Prometheus

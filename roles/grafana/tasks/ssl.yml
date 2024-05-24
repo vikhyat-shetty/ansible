@@ -1,27 +1,37 @@
 ---
 - name: Install OpenSSL (for SSL certificate)
-  when: airgapped_installation_mode == "false"
+  when: airgapped_installation_mode == false
   package:
     name: openssl
     state: present
 
+- name: Create SSL directory if it doesnt already exists
+  file:
+    path: "{{ grafana_install_dir }}/ssl"
+    state: directory
+    mode: '0755'
+
 - name: Create SSL certificate and key
   command: >
     openssl req -x509 -nodes -days 365 -newkey rsa:2048
-    -keyout /etc/grafana/grafana.key
-    -out /etc/grafana/grafana.crt
+    -keyout {{ grafana_install_dir }}/ssl/grafana.key
+    -out {{ grafana_install_dir }}/ssl/grafana.crt
     -subj "/CN=grafana"
 
-- name: Configure Grafana for SSL
-  lineinfile:
-    path: /opt/grafana/conf/defaults.ini
-    regexp: '^;protocol = http$'
-    line: 'protocol = https'
+- name: Set protocol to https
+  replace:
+    path: "{{ grafana_install_dir }}/conf/defaults.ini"
+    regexp: '^protocol\s*=\s*.*'
+    replace: 'protocol = https'
 
-- name: Configure Grafana SSL cert and key paths
-  blockinfile:
-    path: /opt/grafana/conf/defaults.ini
-    block: |
-      cert_file = /etc/grafana/grafana.crt
-      cert_key = /etc/grafana/grafana.key
-    marker: "; {mark}"
+- name: Set cert_file path
+  replace:
+    path: "{{ grafana_install_dir }}/conf/defaults.ini"
+    regexp: '^cert_file =.*'
+    replace: 'cert_file = {{ grafana_install_dir }}/ssl/grafana.crt'
+
+- name: Set cert_key path
+  replace:
+    path: "{{ grafana_install_dir }}/conf/defaults.ini"
+    regexp: '^cert_key =.*'
+    replace: 'cert_key = {{ grafana_install_dir }}/ssl/grafana.key'

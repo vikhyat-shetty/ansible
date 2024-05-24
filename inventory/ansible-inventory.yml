@@ -6,7 +6,7 @@ all:
     ansible_become: true
     ansible_ssh_private_key_file: /root/.ssh/id_rsa
 
-    airgap_mode: disabled
+    airgap_mode: false
 
 
 promethues_grafana_vm:

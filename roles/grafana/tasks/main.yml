@@ -5,26 +5,26 @@
 
 - name: Update apt package and Install necessary packages for Debian/Ubuntu
   include_tasks: "../../prometheus/tasks/debian_ubuntu.yml"
-  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == "false" 
+  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == false
 
 - name: Update yum package and Install necessary packages for CentOS/RHEL
   include_tasks: "../../prometheus/tasks/centos_redhat.yml"
-  when: (ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu') and airgapped_installation_mode == "false" 
+  when: (ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat') and airgapped_installation_mode == false 
 
 - name: Download Grafana
-  when: airgapped_installation_mode == "false"
+  when: airgapped_installation_mode == false
   get_url:
     url: "https://dl.grafana.com/oss/release/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
     dest: "/tmp/grafana.tar.gz"
 
 - name: Copy Grafana package to desination (Air gapped mode)
-  when: airgapped_installation_mode == "true"
+  when: airgapped_installation_mode == true
   ansible.builtin.copy:
     src: "{{ grafana_archive_file_source }}"
     dest: /tmp/
   
 - name: Rename Grafana tar file to grafana.tar.gz
-  when: airgapped_installation_mode == "true"
+  when: airgapped_installation_mode == true
   command: mv /tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz /tmp/grafana.tar.gz
 
 - name: Install Grafana
@@ -59,8 +59,8 @@
       path: "{{item}}"
     register: folder_stats
     with_items:
-      - {{ grafana_install_dir }}/conf/provisioning
-      - {{ grafana_install_dir }}/data/log
+      - "{{ grafana_install_dir }}/conf/provisioning"
+      - "{{ grafana_install_dir }}/data/log"
       - /var/log/grafana
   - name: "Creating multiple folders without disturbing previous permissions"
     file:
@@ -105,7 +105,7 @@
 
 - name: Configure SSL
   include_tasks: ssl.yml
-  when: grafana_ssl_enabled == "true"
+  when: grafana_ssl_enabled == true
 
 - name: Reload systemd daemon
   become: yes
