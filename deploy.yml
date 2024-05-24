@@ -5,12 +5,16 @@
   become: yes
   roles:
     - node_exporter
-  
+  tags:
+    - node_exporter
+
 - name: Install Prometheus
   hosts: promethues
   gather_facts: yes
   become: yes
   roles:
+    - prometheus
+  tags:
     - prometheus
 
 - name: Install Grafana
@@ -18,4 +22,6 @@
   gather_facts: yes
   become: yes
   roles:
+    - grafana
+  tags:
     - grafana
