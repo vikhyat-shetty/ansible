@@ -12,17 +12,43 @@ WorkingDirectory={{ grafana_install_dir }}
 RuntimeDirectory=grafana
 RuntimeDirectoryMode=0750
 ExecStart={{ grafana_install_dir }}/bin/grafana-server \
-  --config={{ grafana_install_dir }}/conf/defaults.ini \
+  --config={{ grafana_install_dir }}/conf/grafana.ini \
   --homepath={{ grafana_install_dir }} \
   --packaging=deb \
   cfg:default.paths.logs={{ grafana_log_path | default('/var/log/grafana') }} \
-  cfg:default.paths.data=/var/lib/grafana \
-  cfg:default.paths.plugins=/var/lib/grafana/plugins \
-  cfg:default.paths.provisioning=/etc/grafana/provisioning
+  cfg:default.paths.data={{ grafana_data_dir | default('/var/lib/grafana') }} \
+  cfg:default.paths.plugins={{ grafana_plugins_dir | default('/var/lib/grafana/plugins') }} \
+  cfg:default.paths.provisioning={{ grafana_install_dir }}/conf/provisioning
 Restart=on-failure
 
 Environment="GF_SECURITY_ADMIN_USER={{ grafana_admin_username }}"
 Environment="GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}"
+
+LimitNOFILE=10000
+TimeoutStopSec=20
+CapabilityBoundingSet=
+DeviceAllow=
+LockPersonality=true
+MemoryDenyWriteExecute=false
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectSystem=full
+RemoveIPC=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+UMask=0027
 
 [Install]
 WantedBy=multi-user.target

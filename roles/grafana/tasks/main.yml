@@ -61,6 +61,7 @@
     with_items:
       - "{{ grafana_install_dir }}/conf/provisioning"
       - "{{ grafana_install_dir }}/data/log"
+      - /var/lib/grafana
       - /var/log/grafana
   - name: "Creating multiple folders without disturbing previous permissions"
     file:
@@ -88,6 +89,11 @@
     src: grafana/provisioning
     dest: "{{ grafana_install_dir }}/conf/"
 
+- name: Setup Prometheus Service File
+  template:
+    src: grafana.ini.j2
+    dest: "{{ grafana_install_dir }}/conf/grafana.ini"
+
 - name: Configure Grafana dashboard location
   template: 
     src: dashboard.yml.j2
@@ -99,9 +105,7 @@
     dest: "{{ grafana_install_dir }}/conf/provisioning/datasources/datasource.yml"
 
 - name: Delete Grafana tmp folder
-  file:
-    path: /tmp/$grafana_dir
-    state: absent
+  command: rm -rf /tmp/grafana*
 
 - name: Configure SSL
   include_tasks: ssl.yml

@@ -18,20 +18,34 @@
     -out {{ grafana_install_dir }}/ssl/grafana.crt
     -subj "/CN=grafana"
 
-- name: Set protocol to https
-  replace:
-    path: "{{ grafana_install_dir }}/conf/defaults.ini"
-    regexp: '^protocol\s*=\s*.*'
-    replace: 'protocol = https'
+- name: Ensure proper permissions for SSL certificate
+  file:
+    path: "{{ grafana_install_dir }}/ssl/grafana.crt"
+    owner: grafana
+    group: grafana
+    mode: '0600'
 
-- name: Set cert_file path
-  replace:
-    path: "{{ grafana_install_dir }}/conf/defaults.ini"
-    regexp: '^cert_file =.*'
-    replace: 'cert_file = {{ grafana_install_dir }}/ssl/grafana.crt'
+- name: Ensure proper permissions for SSL key
+  file:
+    path: "{{ grafana_install_dir }}/ssl/grafana.key"
+    owner: grafana
+    group: grafana
+    mode: '0600'
 
-- name: Set cert_key path
-  replace:
-    path: "{{ grafana_install_dir }}/conf/defaults.ini"
-    regexp: '^cert_key =.*'
-    replace: 'cert_key = {{ grafana_install_dir }}/ssl/grafana.key'
+# - name: Set protocol to https
+#   replace:
+#     path: "{{ grafana_install_dir }}/conf/defaults.ini"
+#     regexp: '^protocol\s*=\s*.*'
+#     replace: 'protocol = https'
+
+# - name: Set cert_file path
+#   replace:
+#     path: "{{ grafana_install_dir }}/conf/defaults.ini"
+#     regexp: '^cert_file =.*'
+#     replace: 'cert_file = {{ grafana_install_dir }}/ssl/grafana.crt'
+
+# - name: Set cert_key path
+#   replace:
+#     path: "{{ grafana_install_dir }}/conf/defaults.ini"
+#     regexp: '^cert_key =.*'
+#     replace: 'cert_key = {{ grafana_install_dir }}/ssl/grafana.key'

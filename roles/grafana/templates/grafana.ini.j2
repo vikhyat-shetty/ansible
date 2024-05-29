@@ -1,0 +1,12 @@
+[server]
+{% if grafana_ssl_enabled %}
+protocol = https
+cert_key = {{ grafana_install_dir }}/ssl/grafana.key
+cert_file = {{ grafana_install_dir }}/ssl/grafana.crt
+{% else %}
+protocol = http
+{% endif %}
+
+http_port = 3000
+domain = {{ inventory_hostname }}
+root_url = %(protocol)s://%(domain)s:%(http_port)s/
