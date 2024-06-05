@@ -6,11 +6,11 @@ all:
     ansible_become: true
     ansible_ssh_private_key_file: /root/.ssh/id_rsa
 
-    airgapped_installation_mode: false
+    airgapped_installation_mode: true
 
 promethues:
   vars:
-    prometheus_archive_file_source: /home/administrator/projects/jmx-playbook/roles/node_exporter/files/air_gapped_files/prometheus-2.45.4.linux-amd64.tar.gz
+    prometheus_archive_file_source: /home/administrator/Downloads/prometheus-2.45.4.linux-amd64.tar.gz
 
     prometheus_version: 2.45.4
     
@@ -35,11 +35,11 @@ promethues:
           env: dev
 
   hosts:
-    c7d96d4d6c654c2eb9e2b9c7cc2da8d22c.mylabserver.com:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d22d.mylabserver.com:
 
 grafana:
   vars:
-    grafana_archive_file_source: /home/administrator/projects/jmx-playbook/roles/prometheus_grafana/files/air_gapped_files/grafana-10.4.2.linux-amd64.tar.gz
+    grafana_archive_file_source: /home/administrator/Downloads/grafana-10.4.2.linux-amd64.tar.gz
     grafana_version: 10.4.2
     grafana_user: grafana
     grafana_group: grafana
@@ -61,12 +61,12 @@ grafana:
       - /home/administrator/projects/jmx-playbook/roles/grafana/files/custom_dashboards/example2.json
 
   hosts:
-    c7d96d4d6c654c2eb9e2b9c7cc2da8d22c.mylabserver.com:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d22d.mylabserver.com:
 
 node_exporter:
   vars:
     node_exporter_version: 1.8.0
-    node_exporter_package:
+    node_exporter_package: /home/administrator/Downloads/node_exporter-1.8.0.linux-amd64.tar.gz
   
     node_exporter_install_dir: "/usr/local/bin"
     node_exporter_listen_address: ":9100"
@@ -76,4 +76,4 @@ node_exporter:
     node_exporter_log_level: "info"
   
   hosts:
-    c7d96d4d6c654c2eb9e2b9c7cc2da8d22c.mylabserver.com:
+    c7d96d4d6c654c2eb9e2b9c7cc2da8d22d.mylabserver.com:

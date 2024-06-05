@@ -20,12 +20,12 @@
 - name: Copy Prometheus package to desination (Air gapped mode)
   when: airgapped_installation_mode == true
   ansible.builtin.copy:
-    src: "{{ prometheus_package }}"
+    src: "{{ prometheus_archive_file_source }}"
     dest: /tmp/
   
-- name: Rename Grafana tar file to prometheus.tar.gz
+- name: Rename Prometheus tar file to prometheus.tar.gz
   when: airgapped_installation_mode == true
-  command: mv prometheus-{{ prometheus_version }}.linux-amd64.tar.gz /tmp/prometheus.tar.gz
+  command: mv /tmp/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz /tmp/prometheus.tar.gz
 
 - name: Install Prometheus
   become: yes
@@ -82,9 +82,7 @@
     - "{{folder_stats.results}}"
 
 - name: Delete Prometheus tmp folder
-  file:
-    path: /tmp/$prometheus_dir
-    state: absent
+  command: rm -rf /tmp/prometheus*
 
 - name: Add scrape_configs to prometheus.yml
   template:

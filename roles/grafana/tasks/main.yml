@@ -104,7 +104,7 @@
     src: datasource.yml.j2
     dest: "{{ grafana_install_dir }}/conf/provisioning/datasources/datasource.yml"
 
-- name: Delete Grafana tmp folder
+- name: Remove Grafana temporary files
   command: rm -rf /tmp/grafana*
 
 - name: Configure SSL

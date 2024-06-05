@@ -11,12 +11,31 @@
     state: directory
     mode: '0755'
 
+- name: Copy custom SSL certificate if provided
+  copy:
+    src: "{{ custom_ssl_cert }}"
+    dest: "{{ grafana_install_dir }}/ssl/grafana.crt"
+    owner: grafana
+    group: grafana
+    mode: '0600'
+  when: custom_ssl_cert is defined
+
+- name: Copy custom SSL key if provided
+  copy:
+    src: "{{ custom_ssl_key }}"
+    dest: "{{ grafana_install_dir }}/ssl/grafana.key"
+    owner: grafana
+    group: grafana
+    mode: '0600'
+  when: custom_ssl_key is defined
+
 - name: Create SSL certificate and key
   command: >
     openssl req -x509 -nodes -days 365 -newkey rsa:2048
     -keyout {{ grafana_install_dir }}/ssl/grafana.key
     -out {{ grafana_install_dir }}/ssl/grafana.crt
     -subj "/CN=grafana"
+  when: custom_ssl_cert is not defined and custom_ssl_key is not defined
 
 - name: Ensure proper permissions for SSL certificate
   file:
